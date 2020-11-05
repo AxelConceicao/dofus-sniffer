@@ -1,9 +1,8 @@
 from packets import *
 
 class PacketsHandler:
-    protocol = None
     messages = {
-        'ChatServerMessage': ChatServerMessage.Packet, # pylint: disable=undefined-variable
+        'ChatServerMessage': ChatServerMessage.ChatServerMessage, # pylint: disable=undefined-variable
     }
 
     def __init__(self, protocol):
@@ -13,9 +12,9 @@ class PacketsHandler:
         for packet in self.protocol['messages']:
             if packet['protocolID'] == dofusPacket.protocolID:
                 if packet['name'] in self.messages:
-                    self.messages[packet['name']](dofusPacket).deserialize()
+                    self.messages[packet['name']](dofusPacket, self.protocol).deserialize()
                 else:
-                    print('No support for "' + packet['name'] + '" packet (' + str(packet['protocolID']) + ')')
+                    print('No support for "' + packet['name'] + '" packet (' + str(packet['protocolID']) + ')\n')
                 return
-        print('No support for "' + str(packet['protocolID']) + '" packet')
+        print('No support for "' + str(packet['protocolID']) + '" packet\n')
         
