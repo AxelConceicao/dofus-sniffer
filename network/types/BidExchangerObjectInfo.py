@@ -1,37 +1,25 @@
-import network.utils.CustomDataWrapper as dataWrapper # pylint: disable=import-error
 from misc import * # pylint: disable=unused-wildcard-import
 
 class Type:
     name = 'BidExchangerObjectInfo'
 
-    def __init__(self):
-        self.objectUID = 0
-        self.objectGID = 0
-        self.objectName = ''
-        self.objectType = 0
+    def __init__(self, objectUID = 0, objectGID = 0, objectType = 0, effects = None, prices = None):
+        self.objectUID = objectUID
+        self.objectGID = objectGID
+        self.objectType = objectType
+        self.effects = effects
+        self.prices = prices
+
+    def deserialize(self, _input):
         self.effects = []
         self.prices = []
-
-    def __str__(self):
-        return \
-        '\tobjectUID: ' + str(self.objectUID) + '\n' \
-        '\tobjectGID: ' + str(self.objectGID) + '\n' \
-        '\tobjectName: ' + str(self.objectName) + '\n' \
-        '\tobjectType: ' + str(self.objectType) + '\n' \
-        '\teffects: ' + ', '.join(str(effect) for effect in self.effects) + '\n' \
-        '\tprices:\n\t- ' + '\n\t- '.join(str(price) for price in self.prices) + '\n'
-
-    def deserialize(self, data):
-        self.objectUID, data = dataWrapper.readVarInt(data)
-        self.objectGID, data = dataWrapper.readVarShort(data)
-        self.objectName = getObjectName(self.objectGID) # pylint: disable=undefined-variable
-        self.objectType, data = dataWrapper.readInt(data)
-        effectsLen, data = dataWrapper.readShort(data)
+        self.objectUID = _input.readVarInt()
+        self.objectGID = _input.readVarShort()
+        self.objectType = _input.readInt()
+        effectsLen = _input.readShort()
         for _ in range(0, effectsLen):
-            effect, data = dataWrapper.readShort(data)
-            self.effects.append(effect)
-        pricesLen, data = dataWrapper.readShort(data)
+            self.effects.append(_input.readShort())
+        pricesLen = _input.readShort()
         for _ in range(0, pricesLen):
-            price, data = dataWrapper.readVarLong(data)
-            self.prices.append(price)
-        return data
+            self.prices.append(_input.readVarLong())
+        return _input

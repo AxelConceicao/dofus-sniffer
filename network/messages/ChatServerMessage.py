@@ -1,42 +1,39 @@
-import network.utils.CustomDataWrapper as dataWrapper # pylint: disable=import-error
 from datetime import datetime
 
 class Message:
     name = 'ChatServerMessage'
-    channel = None
-    content = None
-    timestamp = None
-    fingerprint = None
-    senderId = None
-    senderName = None
-    prefix = None
-    senderAccountId = None
+    channelName = ''
 
-    def __init__(self, dofusPacket, protocol):
-        self.dofusPacket = dofusPacket
+    def __init__(self, protocol, channel = 0, content = '', timestamp = 0, fingerprint = '', senderId = '', senderName = '', prefix = '', senderAccountId = 0):
         self.protocol = protocol
+        self.channel = channel
+        self.content = content
+        self.timestamp = timestamp
+        self.fingerprint = fingerprint
+        self.senderId = senderId
+        self.senderName = senderName
+        self.prefix = prefix
+        self.senderAccountId = senderAccountId
 
     def printMessage(self):
-        print(self.name + ' (' + str(self.dofusPacket.protocolID) + ')')
-        print('Channel: ' + self.channel)
-        print('Time: ' + datetime.fromtimestamp(self.timestamp).strftime('%H:%M:%S'))
+        print('Channel: ' + str(self.channel) + ' (' + self.channelName + ')')
+        print('Time: ' + str(self.timestamp) + ' (' + datetime.fromtimestamp(self.timestamp).strftime('%H:%M:%S') + ')')
         print('Message: ' + self.content)
         print('SenderName: ' + self.senderName)
 
-    def deserialize(self):
-        data = self.dofusPacket.messageData
-        unpackedData, data = dataWrapper.readByte(data)
+    def deserialize(self, _input):
+        self.channel = int.from_bytes(_input.readByte(), byteorder='big')
         for enum in self.protocol['enumerations']:
             if enum['name'] == 'ChatActivableChannelsEnum':
-                self.channel = list(enum['members'].keys())[list(enum['members'].values()).index(str(unpackedData))]
-        self.content, data = dataWrapper.readUTF(data)
-        self.timestamp, data = dataWrapper.readInt(data)
-        self.fingerprint, data = dataWrapper.readUTF(data)
-        self.senderId, data = dataWrapper.readDouble(data)
-        self.senderName, data = dataWrapper.readUTF(data)
-        self.prefix, data = dataWrapper.readUTF(data)
-        self.senderAccountId, data = dataWrapper.readInt(data)
-        if len(data) == 0:
+                self.channelName = list(enum['members'].keys())[list(enum['members'].values()).index(str(self.channel))]
+        self.content = _input.readUTF()
+        self.timestamp = _input.readInt()
+        self.fingerprint = _input.readUTF()
+        self.senderId = _input.readDouble()
+        self.senderName = _input.readUTF()
+        self.prefix = _input.readUTF()
+        self.senderAccountId = _input.readInt()
+        if _input.isDeserialized():
             self.printMessage()
             # print('Packet successfully deserialized!')
         else:

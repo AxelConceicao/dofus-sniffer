@@ -13,9 +13,8 @@ class PacketsHandler:
         self.debug = debug
 
     def printDebug(self, dofusPacket):
-        if dofusPacket.messageData == '' or dofusPacket.messageData == None : return
-        print(' '.join(str(c) for c in dofusPacket.messageData))
-        print(' '.join(f"{c:08b}" for c in dofusPacket.messageData))
+        print(' '.join(str(c) for c in dofusPacket.messageData.data))
+        print(' '.join(f"{c:08b}" for c in dofusPacket.messageData.data))
 
     def deserialize(self, dofusPacket):
         # if dofusPacket.protocolID in [5722, 4275, 8712, 1111, 5009, 2994, 9281]:
@@ -24,7 +23,8 @@ class PacketsHandler:
             if packet['protocolID'] == dofusPacket.protocolID:
                 if self.debug : self.printDebug(dofusPacket)
                 if packet['name'] in self.messages:
-                    self.messages[packet['name']](dofusPacket, self.protocol).deserialize()
+                    print(packet['name'] + ' (' + str(packet['protocolID']) + ')')
+                    self.messages[packet['name']](self.protocol).deserialize(dofusPacket.messageData)
                 else:
                     print('No support for "' + packet['name'] + '" packet (' + str(packet['protocolID']) + ')')
                 print()

@@ -1,3 +1,5 @@
+from network.utils.CustomDataWrapper import * # pylint: disable=unused-wildcard-import
+
 class DofusPacket:
 
     def __init__(self):
@@ -17,5 +19,5 @@ class DofusPacket:
         self.protocolID = header >> 2
         self.lenType = header & 3
         self.messageLen = int.from_bytes(data[2:2 + self.lenType], byteorder="big")
-        self.messageData = data[2 + self.lenType:2 + self.lenType + self.messageLen]
+        self.messageData = CustomDataWrapper(data[2 + self.lenType:2 + self.lenType + self.messageLen])
         return data[2 + self.lenType + self.messageLen:]

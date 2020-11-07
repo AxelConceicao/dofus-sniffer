@@ -1,63 +1,75 @@
 import array
 
-def readByte(data):
-    return data[0], data[1:]
+class CustomDataWrapper:
+    def __init__(self, data):
+        self.data = data
+        self.offset = 0
 
-def readShort(data):
-    return int.from_bytes(data[:2], byteorder='big'), data[2:]
+    def isDeserialized(self):
+        return self.offset == len(self.data)
 
-def readInt(data):
-    return int.from_bytes(data[:4], byteorder='big'), data[4:]
+    def readBytes(self, length):
+        toRead = self.data[self.offset:self.offset + length]
+        self.offset += length
+        return toRead
 
-def readDouble(data):
-    return int.from_bytes(data[:8], byteorder='big'), data[8:]
+    def readByte(self):
+        return self.readBytes(1)
 
-def readUTF(data):
-    len = int.from_bytes(data[:2], byteorder='big')
-    unpackedData = array.array('b', data[2:len + 2]).tostring().decode('utf-8') # •_•
-    return unpackedData, data[len + 2:]
+    def readShort(self):
+        return int.from_bytes(self.readBytes(2), byteorder='big')
 
-def readVarShort(data):
-    value = 0
-    offset = 0
-    while offset < 16:
-        b, data = readByte(data)
-        hasNext = (b & 128) == 128
-        if offset > 0:
-            value += (b & 127) << offset
-        else:
-            value += b & 127
-        offset += 7
-        if not hasNext:
-            return value, data
-    return 0, data
+    def readInt(self):
+        return int.from_bytes(self.readBytes(4), byteorder='big')
 
-def readVarLong(data):
-    value = 0
-    offset = 0
-    while offset < 64:
-        b, data = readByte(data)
-        hasNext = (b & 128) == 128
-        if offset > 0:
-            value += (b & 127) << offset
-        else:
-            value += b & 127
-        offset += 7
-        if not hasNext:
-            return value, data
-    return 0, data
+    def readDouble(self):
+        return int.from_bytes(self.readBytes(8), byteorder='big')
 
-def readVarInt(data):
-    value = 0
-    offset = 0
-    while offset < 32:
-        b, data = readByte(data)
-        hasNext = (b & 128) == 128
-        if offset > 0:
-            value += (b & 127) << offset
-        else:
-            value += b & 127
-        offset += 7
-        if not hasNext:
-            return value, data
-    return 0, data
+    def readUTF(self):
+        stringLen = self.readShort()
+        return array.array('b', self.readBytes(stringLen)).tostring().decode('utf-8') # •_•
+
+    def readVarShort(self):
+        value = 0
+        offset = 0
+        while offset < 16:
+            b = int.from_bytes(self.readByte(), byteorder='big')
+            hasNext = (b & 128) == 128
+            if offset > 0:
+                value += (b & 127) << offset
+            else:
+                value += b & 127
+            offset += 7
+            if not hasNext:
+                return value
+        return 0
+
+    def readVarLong(self):
+        value = 0
+        offset = 0
+        while offset < 64:
+            b = int.from_bytes(self.readByte(), byteorder='big')
+            hasNext = (b & 128) == 128
+            if offset > 0:
+                value += (b & 127) << offset
+            else:
+                value += b & 127
+            offset += 7
+            if not hasNext:
+                return value
+        return 0
+
+    def readVarInt(self):
+        value = 0
+        offset = 0
+        while offset < 32:
+            b = int.from_bytes(self.readByte(), byteorder='big')
+            hasNext = (b & 128) == 128
+            if offset > 0:
+                value += (b & 127) << offset
+            else:
+                value += b & 127
+            offset += 7
+            if not hasNext:
+                return value
+        return 0

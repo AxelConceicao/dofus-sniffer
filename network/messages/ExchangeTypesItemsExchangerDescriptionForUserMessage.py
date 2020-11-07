@@ -1,31 +1,33 @@
-import network.utils.CustomDataWrapper as dataWrapper # pylint: disable=import-error
 import network.types.BidExchangerObjectInfo as BidExchangerObjectInfo # pylint: disable=import-error
+from misc import * # pylint: disable=unused-wildcard-import
 
 class Message:
     name = 'ExchangeTypesItemsExchangerDescriptionForUserMessage'
 
-    def __init__(self, dofusPacket, protocol):
-        self.dofusPacket = dofusPacket
+    def __init__(self, protocol, objectType = 0, objects = None):
         self.protocol = protocol
-        self.objectType = 0
-        self.objects = []
+        self.objectType = objectType
+        self.objects = objects
 
     def printMessage(self):
-        print(self.name + ' (' + str(self.dofusPacket.protocolID) + ')')
-        print('- objectType: ' + str(self.objectType))
-        for item in self.objects:
-            print(str(item))
+        print('objectType: ' + str(self.objectType))
+        for obj in self.objects:
+            print()
+            print('objectUID: ' + str(obj.objectUID))
+            print('objectGID: ' + str(obj.objectGID) + ' (' + getObjectName(obj.objectGID) + ')') # pylint: disable=undefined-variable
+            print('objectType: ' + str(obj.objectType))
+            print('prices: ' + ', '.join(str(p) for p in obj.prices))
 
-    def deserialize(self):
-        data = self.dofusPacket.messageData
-        self.objectType, data = dataWrapper.readInt(data)
-        objectsLen, data = dataWrapper.readShort(data)
+    def deserialize(self, _input):
+        self.objects = []
+        self.objectType = _input.readInt()
+        objectsLen = _input.readShort()
         for _ in range(0, objectsLen):
             obj = BidExchangerObjectInfo.Type()
-            data = obj.deserialize(data)
+            obj.deserialize(_input)
             self.objects.append(obj)
-        self.printMessage()
-        if len(data) == 0:
-            print('Packet successfully deserialized!')
+        if _input.isDeserialized():
+            self.printMessage()
+            # print('Packet successfully deserialized!')
         else:
             print('Deserialization has encountered an error.')
