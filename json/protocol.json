@@ -40685,20 +40685,20 @@
     "client": {
       "build": {
         "date": {
-          "day": 30,
-          "full": "2020-10-30 13:11",
-          "hour": 13,
-          "minute": 11,
-          "month": 10,
+          "day": 9,
+          "full": "2020-11-9 14:6",
+          "hour": 14,
+          "minute": 6,
+          "month": 11,
           "year": 2020
         },
         "type": "release"
       },
       "version": {
-        "build": 10,
+        "build": 12,
         "major": 2,
         "minor": 57,
-        "patch": 7
+        "patch": 9
       }
     },
     "parser": {

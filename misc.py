@@ -1,19 +1,20 @@
 import os
 import sys
 import json
+from colorama import Fore, Back, Style
 
 OBJECTS_FILENAME = 'json/objects.json'
 
+def eprint(msg):
+    print(Fore.RED + msg + Style.RESET_ALL, file=sys.stderr)
+
+def wprint(msg):
+    print(Fore.YELLOW + msg + Style.RESET_ALL)
+
+def sprint(msg):
+    print(Fore.GREEN + msg + Style.RESET_ALL)
+
 def isFileExist(file):
     if not os.path.isfile(file): 
-        print("No such file : " + file, file=sys.stderr)
+        eprint("No such file : " + file)
     return True
-
-def getObjectName(objectGID):
-    if not isFileExist(OBJECTS_FILENAME):
-        return
-    with open(OBJECTS_FILENAME, 'r', encoding="utf8") as json_file:
-            objects = json.load(json_file)
-            return objects[str(objectGID)]
-    print('Cannot find object with GID: ' + str(objectGID), file=sys.stderr)
-    return None

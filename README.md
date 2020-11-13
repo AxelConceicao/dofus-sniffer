@@ -1,30 +1,22 @@
 # Dofus Sniffer
-Build with Python3.7 and Scapy  
+Build with Python 3.7.9 and Scapy 2.4.4
 **This project is still in progress**
 
-## Packets handled
+## Protocol Builder
 
-* ChatServerMessage
 ```
-ChatServerMessage (5722)
-Channel: 6 (CHANNEL_SEEK)
-Time: 1604760854 (15:54:14)
-Message: Bonjour, pas de guilde ré-ouvre ses portes portes aux joueurs PVP / PVM souhaitant partager de bons moments en communauté. L'aide au recrutement et l'entraide sont récompensées en rangs. Bon jeu !
-SenderName: Tetashield
-```
-
-* ExchangeTypesItemsExchangerDescriptionForUserMessage
-> For now only works with ressources not equipments
-```
-ExchangeTypesItemsExchangerDescriptionForUserMessage (8949)
-- objectType: 40
-    objectUID: 1016635
-    objectGID: 12728
-    objectName: Ardonite
-    objectType: 40
-    effects:
-    prices:
-    - 79950 
-    - 884500
-    - 8949000
+{
+    "ChatAbstractServerMessage": {
+        "channel": 5,
+        "content": "achetes coiffe roli 500k",
+        "timestamp": 1605226808,
+        "fingerprint": "j5r87v0z",
+    },
+    "ChatServerMessage": {
+        "senderId": 899174760653.0,
+        "senderName": "Pikfeu",
+        "prefix": "",
+        "senderAccountId": 56159157,
+    },
+}
 ```
