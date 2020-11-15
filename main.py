@@ -24,7 +24,7 @@ def action(msg):
     # print(', '.join(str(c) for c in msg.data.data))
     # print(' '.join(f"{c:08b}" for c in msg.data.data))
     content = protocolBuilder.build(msg.id, msg.data)
-    # print(content)
+    print(content)
     # print('--')
 
 if __name__ == "__main__":

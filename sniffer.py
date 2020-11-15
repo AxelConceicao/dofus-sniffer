@@ -14,7 +14,7 @@ class Msg():
             self.lenType = header & 3
             self.dataLen = int.from_bytes(buffer.read(self.lenType), byteorder="big")
             self.checkHeader()
-            print('dataLen: ' + str(self.dataLen))
+            # print('dataLen: ' + str(self.dataLen))
             self.data = Data(buffer.read(self.dataLen))
         except IndexError:
             buffer.pos = 0
@@ -46,24 +46,24 @@ class Sniffer:
         sniff(filter='tcp src port 5555', lfilter = lambda pkt: pkt.haslayer(Raw), prn = lambda pkt: self.receive(pkt))
 
     def receive(self, pkt):
-        print('--')
-        print('bufferSize: ' + str(len(self.buffer.data)))
-        print('pktLen: ' + str(len(pkt.getlayer(Raw))))
-        print(pkt.getlayer(IP).id)
+        # print('--')
+        # print('bufferSize: ' + str(len(self.buffer.data)))
+        # print('pktLen: ' + str(len(pkt.getlayer(Raw))))
+        # print(pkt.getlayer(IP).id)
         if self.lastPkt and pkt.getlayer(IP).src != self.lastPkt.getlayer(IP).src:
             self.lastPkt = None
             # self.buffer = Buffer()
-            wprint('Source changed!')
+            # wprint('Source changed!')
         if self.lastPkt and pkt.getlayer(IP).id < self.lastPkt.getlayer(IP).id:
-            eprint('Late packet!')
+            # eprint('Late packet!')
             self.buffer.reorder(bytes(pkt.getlayer(Raw)), len(self.lastPkt.getlayer(Raw)))
         else:
             self.buffer += bytes(pkt.getlayer(Raw))
-        print('bufferSize APRES: ' + str(len(self.buffer.data)))
+        # print('bufferSize APRES: ' + str(len(self.buffer.data)))
         self.lastPkt = pkt
         msg = Msg(self.buffer, self.protocol)
         while msg:
-            print('ID: ' + str(msg.id) + ' - dataLen: ' + str(len(msg.data)))
+            # print('ID: ' + str(msg.id) + ' - dataLen: ' + str(len(msg.data)))
             # print(' '.join(str(c) for c in msg.data.data))
             # print(' '.join(f"{c:08b}" for c in msg.data.data))
             self.callback(msg)
