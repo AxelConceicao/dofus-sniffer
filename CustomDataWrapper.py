@@ -44,6 +44,12 @@ class Data:
     def reorder(self, byte, length):
         self.data = bytearray(self.data[:len(self.data) - length] + byte + self.data[len(self.data) - length:])
 
+    def printToInt(self):
+        return ' '.join(str(c) for c in self.data)
+
+    def printToBytes(self):
+        return ' '.join(f"{c:08b}" for c in self.data)
+
     @classmethod
     def fromhex(cls, hex):
         return cls(bytearray.fromhex(hex))
