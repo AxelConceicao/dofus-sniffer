@@ -23,9 +23,6 @@ class Data:
     def __radd__(self, byte):
         return byte + self.data
 
-    def preadd(self, byte):
-        self.data = bytearray(self.data[:len(self.data) - 32] + byte + self.data[len(self.data) - 32:])
-
     def __iadd__(self, by):
         self.data += by
         return self
@@ -43,6 +40,9 @@ class Data:
 
     def hex(self):
         return self.data.hex()
+
+    def reorder(self, byte, length):
+        self.data = bytearray(self.data[:len(self.data) - length] + byte + self.data[len(self.data) - length:])
 
     @classmethod
     def fromhex(cls, hex):
@@ -211,8 +211,6 @@ class Data:
         self.writeVarShort(i)
 
 class Buffer(Data):
-    lastPktID = None
-
     def end(self):
         """Very efficient
         """

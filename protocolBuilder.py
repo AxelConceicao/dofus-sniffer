@@ -1,4 +1,4 @@
-from misc import * # pylint: disable=unused-wildcard-import
+from Misc import * # pylint: disable=unused-wildcard-import
 
 PROTOCOL_FILENAME = 'json/protocol.json'
 
@@ -20,17 +20,15 @@ class ProtocolBuilder:
 
     def getObjectByID(self, ID):
         for objectType in ['messages', 'types']:
-            obj = next((item for item in self.protocol[objectType] if item["protocolID"] == ID), None)
+            obj = next((item for item in self.protocol[objectType] if item['protocolID'] == ID), None)
             if obj : return obj
-        eprint('Unable to get object with ID "' + str(ID) + '"')
-        exit(1)
+        raise ValueError('Unable to get object with ID "' + str(ID) + '"')
 
     def getObjectByName(self, name):
         for objectType in ['messages', 'types']:
-            obj = next((item for item in self.protocol[objectType] if item["name"] == name), None)
+            obj = next((item for item in self.protocol[objectType] if item['name'] == name), None)
             if obj : return obj
-        eprint('Unable to get object with name "' + str(name) + '"')
-        exit(1)
+        raise ValueError('Unable to get object with name "' + str(name) + '"')
 
     def deserializeField(self, obj, field):
         if 'is_vector' in field:
@@ -53,14 +51,31 @@ class ProtocolBuilder:
             else:
                 return self.methods[field['write_method']]()
 
+    def deserializeByteBoxes(self, fields):
+        byte = self.methods['writeByte']()
+        bits = [(byte >> bit) & 1 for bit in range(8 - 1, -1, -1)]
+        bits = bits[::-1]
+        obj = {}
+        fields = sorted(fields, key=lambda k: k['boolean_byte_wrapper_position']) 
+        for pos in range(0, len(fields)):
+            obj[fields[pos]['name']] = bool(bits[pos])
+        return obj
+
     def deserializeObject(self, obj):
         content = {}
         if obj['super_serialize']:
-            content = self.deserializeObject(self.getObjectByName(obj['super']))
-        content[obj['name']] = {}
-        for pos in range(0, len(obj['fields'])):
-            field = next(item for item in obj['fields'] if item["position"] == pos)
-            content[obj['name']][field['name']] = self.deserializeField(obj, field)
+            content = {**content, **self.deserializeObject(self.getObjectByName(obj['super']))}
+        fields = {}
+        for field in obj['fields']:
+            if field['position'] in fields:
+                fields[field['position']].append(field)
+            else:
+                fields[field['position']] = [field]
+        for pos in range(0, len(fields)):
+            if len(fields[pos]) == 1 and 'use_boolean_byte_wrapper' not in fields[pos][0]:
+                content[fields[pos][0]['name']] = self.deserializeField(obj, fields[pos][0])
+            else:
+                content = {**content, **self.deserializeByteBoxes(fields[pos])}
         return content
 
     def build(self, ID, data):
@@ -69,9 +84,10 @@ class ProtocolBuilder:
         self.setMethods()
         try:
             self.content = self.deserializeObject(self.getObjectByID(ID))
-        except KeyError:
-            eprint('Unable to deserialize message "' + str(ID) + '"')
-            print(', '.join(str(c) for c in data.data))
+        except (KeyError, IndexError) as err:
+            eprint('Unable to deserialize message "' + str(ID) + '" (' + str(err) + ')')
+        except ValueError as err:
+            eprint(str(err))
         return self.content
 
     def setMethods(self):
