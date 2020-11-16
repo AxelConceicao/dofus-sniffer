@@ -1,6 +1,7 @@
+import os
 from Misc import * # pylint: disable=unused-wildcard-import
 
-PROTOCOL_FILENAME = 'json/protocol.json'
+PROTOCOL_FILENAME = os.path.dirname(__file__) + '/json/protocol.json'
 
 class ProtocolBuilder:
     protocol = None

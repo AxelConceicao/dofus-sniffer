@@ -55,6 +55,6 @@ class Sniffer:
         self.lastPkt = pkt
         msg = Msg(self.buffer, self.protocolBuilder.protocol)
         while msg:
-            print('ID: ' + str(msg.id) + ' - dataLen: ' + str(len(msg.data)))
-            self.callback(self.protocolBuilder.build(msg.id, msg.data))
+            # print('ID: ' + str(msg.id) + ' - dataLen: ' + str(len(msg.data)))
+            self.callback(msg.id, self.protocolBuilder.build(msg.id, msg.data))
             msg = Msg(self.buffer, self.protocolBuilder.protocol)
