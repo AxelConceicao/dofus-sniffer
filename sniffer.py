@@ -20,7 +20,7 @@ class Msg():
             buffer.pos = 0
             self.b = False
         except ValueError:
-            eprint(self.error)
+            # eprint(self.error)
             buffer.pos = 0
             self.b = False
         else:
@@ -38,11 +38,14 @@ class Msg():
         return self.b
 
 class Sniffer:
-    def __init__(self, callback):
-        self.callback = callback
+    def __init__(self):
         self.protocolBuilder = ProtocolBuilder()
+        self.protocol = self.protocolBuilder.protocol
         self.buffer = Buffer()
         self.lastPkt = None
+
+    def run(self, callback):
+        self.callback = callback
         sniff(filter='tcp src port 5555', lfilter = lambda pkt: pkt.haslayer(Raw), prn = lambda pkt: self.receive(pkt))
 
     def receive(self, pkt):
@@ -53,8 +56,8 @@ class Sniffer:
         else:
             self.buffer += bytes(pkt.getlayer(Raw))
         self.lastPkt = pkt
-        msg = Msg(self.buffer, self.protocolBuilder.protocol)
+        msg = Msg(self.buffer, self.protocol)
         while msg:
             # print('ID: ' + str(msg.id) + ' - dataLen: ' + str(len(msg.data)))
             self.callback(msg.id, self.protocolBuilder.build(msg.id, msg.data))
-            msg = Msg(self.buffer, self.protocolBuilder.protocol)
+            msg = Msg(self.buffer, self.protocol)

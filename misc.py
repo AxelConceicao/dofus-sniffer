@@ -1,9 +1,8 @@
 import os
 import sys
 import json
+import errno
 from colorama import Fore, Back, Style
-
-OBJECTS_FILENAME = 'json/objects.json'
 
 def eprint(msg):
     print(Fore.RED + msg + Style.RESET_ALL, file=sys.stderr)
@@ -14,7 +13,8 @@ def wprint(msg):
 def sprint(msg):
     print(Fore.GREEN + msg + Style.RESET_ALL)
 
-def isFileExist(file):
-    if not os.path.isfile(file): 
-        eprint("No such file : " + file)
+def isFileExist(filename):
+    if not os.path.isfile(filename): 
+        eprint("No such file : " + filename)
+        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename)
     return True

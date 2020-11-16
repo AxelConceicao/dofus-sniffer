@@ -1,6 +1,11 @@
 # Dofus Sniffer
-Build with Python 3.7.9 and Scapy 2.4.4  
-**This project is still in progress**
+**This project is still in progress**  
+I will add complete instructions soon
+
+### Built With
+
+* [Python 3.7](https://www.python.org/downloads/)
+* [Scapy 2.4.4](https://scapy.readthedocs.io/en/latest/installation.html)
 
 ## Protocol Builder
 
