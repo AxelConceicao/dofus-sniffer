@@ -1,6 +1,6 @@
 from Sniffer import Sniffer
 
-def action(msg):
+def action(id, msg):
     print(msg)
     print('-')
 
@@ -8,7 +8,7 @@ def action(msg):
 Call main() from your program with your callback function as argument
 """
 def main(callback = action):
-    Sniffer(callback)
+    Sniffer().run(callback)
 
 if __name__ == "__main__":
     main()

@@ -38,26 +38,41 @@ class Msg():
         return self.b
 
 class Sniffer:
-    def __init__(self):
+    def __init__(self, concatMode = True):
         self.protocolBuilder = ProtocolBuilder()
         self.protocol = self.protocolBuilder.protocol
         self.buffer = Buffer()
+        self.concatMode = concatMode
         self.lastPkt = None
 
-    def run(self, callback):
+    def run(self, callback, whitelist = None):
         self.callback = callback
-        sniff(filter='tcp src port 5555', lfilter = lambda pkt: pkt.haslayer(Raw), prn = lambda pkt: self.receive(pkt))
+        self.whitelist = whitelist
+        sniff(
+            filter='tcp src port 5555',
+            lfilter = lambda pkt: pkt.haslayer(Raw),
+            prn = lambda pkt: self.receive(pkt)
+        )
 
     def receive(self, pkt):
         if self.lastPkt and pkt.getlayer(IP).src != self.lastPkt.getlayer(IP).src:
             self.lastPkt = None
         if self.lastPkt and pkt.getlayer(IP).id < self.lastPkt.getlayer(IP).id:
-            self.buffer.reorder(bytes(pkt.getlayer(Raw)), len(self.lastPkt.getlayer(Raw)))
+            self.buffer.reorder(bytes(pkt.getlayer(Raw)),
+            len(self.lastPkt.getlayer(Raw)))
         else:
-            self.buffer += bytes(pkt.getlayer(Raw))
+            if self.concatMode:
+                self.buffer += bytes(pkt.getlayer(Raw))
+            else:
+                self.buffer = Buffer()
+                self.buffer += bytes(pkt.getlayer(Raw))
         self.lastPkt = pkt
         msg = Msg(self.buffer, self.protocol)
         while msg:
-            # print('ID: ' + str(msg.id) + ' - dataLen: ' + str(len(msg.data)))
-            self.callback(msg.id, self.protocolBuilder.build(msg.id, msg.data))
+            print('ID: ' + str(msg.id) + ' - dataLen: ' + str(len(msg.data)))
+            if self.whitelist:
+                if msg.id in self.whitelist:
+                    self.callback(msg.id, self.protocolBuilder.build(msg.id, msg.data))
+            else:
+                    self.callback(msg.id, self.protocolBuilder.build(msg.id, msg.data))
             msg = Msg(self.buffer, self.protocol)
