@@ -166,7 +166,7 @@ class Data:
             ans += (b & 0b01111111) << i
             if not b & 0b10000000:
                 return ans
-        raise Exception("Too much data")
+        # raise Exception("Too much data")
 
     def writeVarInt(self, i):
         assert i.bit_length() <= 32
@@ -185,7 +185,7 @@ class Data:
             ans += (b & 0b01111111) << i
             if not b & 0b10000000:
                 return ans
-        raise Exception("Too much data")
+        # raise Exception("Too much data")
 
     def writeVarLong(self, i):
         assert i.bit_length() <= 64
@@ -204,7 +204,7 @@ class Data:
             ans += (b & 0b01111111) << i
             if not b & 0b10000000:
                 return ans
-        raise Exception("Too much data")
+        # raise Exception("Too much data")
 
     def writeVarShort(self, i):
         assert i.bit_length() <= 16
