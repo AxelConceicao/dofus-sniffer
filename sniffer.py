@@ -69,7 +69,7 @@ class Sniffer:
         self.lastPkt = pkt
         msg = Msg(self.buffer, self.protocol)
         while msg:
-            print('ID: ' + str(msg.id) + ' - dataLen: ' + str(len(msg.data)))
+            # print('ID: ' + str(msg.id) + ' - dataLen: ' + str(len(msg.data)))
             if self.whitelist:
                 if msg.id in self.whitelist:
                     self.callback(msg.id, self.protocolBuilder.build(msg.id, msg.data))
